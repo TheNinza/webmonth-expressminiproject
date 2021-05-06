@@ -19,15 +19,12 @@ let data = [
 const app = express();
 
 app.use(cors());
+app.use(express.json());
 
-app.use(express.text());
+const port = process.env.PORT || 5000;
 
 app.get("/", (req, res) => {
   res.send(data);
-});
-
-app.post("/11", (req, res) => {
-  console.log(req.body);
 });
 
 app.post("/adddata", (req, res) => {
@@ -44,6 +41,6 @@ app.post("/adddata", (req, res) => {
   }
 });
 
-app.listen(5000, () => {
-  console.log("i am running");
+app.listen(port, () => {
+  console.log("i am running on " + port);
 });
