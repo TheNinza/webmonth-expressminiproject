@@ -2,29 +2,33 @@
 
 const express = require("express");
 const cors = require("cors");
+const { Client } = require("pg");
 
-let data = [
-  { username: "Bret", email: "Sincere@april.biz" },
-  { username: "Antonette", email: "Shanna@melissa.tv" },
-  { username: "Samantha", email: "Nathan@yesenia.net" },
-  { username: "Karianne", email: "Julianne.OConner@kory.org" },
-  { username: "Kamren", email: "Lucio_Hettinger@annie.ca" },
-  { username: "Leopoldo_Corkery", email: "Karley_Dach@jasper.info" },
-  { username: "Elwyn.Skiles", email: "Telly.Hoeger@billy.biz" },
-  { username: "Maxime_Nienow", email: "Sherwood@rosamond.me" },
-  { username: "Delphine", email: "Chaim_McDermott@dana.io" },
-  { username: "Moriah.Stanton", email: "Rey.Padberg@karina.biz" },
-];
+const connectionString =
+  "postgres://vzbtlvbx:cIYOsLtKgwXp7KgzFVgPmB-BXeszmZpX@john.db.elephantsql.com:5432/vzbtlvbx";
+
+const client = new Client(connectionString);
+
+client.connect();
+
+// INSERT INTO users (username, email) values ('Bret', 'Sincere@april.biz'),('Antonette', 'Shanna@melissa.tv'),('Samantha', 'Nathan@yesenia.net'),('Karianne', 'Julianne.OConner@kory.org'),('Kamren', 'Lucio_Hettinger@annie.ca'),('Leopoldo_Corkery', 'Karley_Dach@jasper.info'),('Elwyn.Skiles', 'Telly.Hoeger@billy.biz'),('Maxime_Nienow', 'Sherwood@rosamond.me'),('Delphine', 'Chaim_McDermott@dana.io'),('Moriah.Stanton', 'Rey.Padberg@karina.biz');
 
 const app = express();
 
 app.use(cors());
 app.use(express.json());
 
-const port = process.env.PORT || 5000;
+const port = process.env.PORT || 8000;
 
 app.get("/", (req, res) => {
-  res.send(data);
+  client.query("select * from users", (err, databaseRes) => {
+    if (err) {
+      console.log(err);
+      res.status(500).send("Database errored out");
+    } else {
+      res.send(databaseRes.rows);
+    }
+  });
 });
 
 app.post("/adddata", (req, res) => {
@@ -33,9 +37,26 @@ app.post("/adddata", (req, res) => {
 
   if (Number(secretKey) === 1234) {
     const newUser = req.body.newUser;
-    data.push(newUser);
-
-    res.send(data);
+    client.query(
+      `INSERT INTO users (username, email) values ('${newUser.username}', '${newUser.email}')`,
+      (err, databaseRes) => {
+        if (err) {
+          console.log(err);
+          res.status(500).send("Database errored out");
+        } else {
+          // console.log(databaseRes);
+          // res.send("ok");
+          client.query("select * from users", (err, databaseRes) => {
+            if (err) {
+              console.log(err);
+              res.status(500).send("Database errored out");
+            } else {
+              res.send(databaseRes.rows);
+            }
+          });
+        }
+      }
+    );
   } else {
     res.status(400).send("User Not Created");
   }
