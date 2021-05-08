@@ -4,8 +4,7 @@ const express = require("express");
 const cors = require("cors");
 const { Client } = require("pg");
 
-const connectionString =
-  "postgres://vzbtlvbx:cIYOsLtKgwXp7KgzFVgPmB-BXeszmZpX@john.db.elephantsql.com:5432/vzbtlvbx";
+const connectionString = process.env.SQLURL;
 
 const client = new Client(connectionString);
 
